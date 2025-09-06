@@ -1,0 +1,21 @@
+services:
+  idm-fortune-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - PRINTER_API_HOST=http://printer-api:8080
+    volumes:
+      - ./fortune_images:/app/fortune_images
+      - ./server.py:/app/server.py
+      - ./img:/app/img
+    depends_on:
+      - printer-api
+    restart: unless-stopped
+
+  printer-api:
+    build: ./mock_printer
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

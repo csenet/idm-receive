@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   idm-fortune-service:
     build: .
@@ -19,3 +21,13 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - idm-fortune-service
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}

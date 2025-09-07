@@ -341,18 +341,6 @@ async def receive_idm(request: Request):
             if card_image_path:
                 print_success = send_to_printer(card_image_path)
                 
-                card_record = {
-                    "idm_data": idm_text,
-                    "card_filename": card_filename,
-                    "image_path": card_image_path,
-                    "print_success": print_success,
-                    "created_at": timestamp,
-                    "updated_at": timestamp,
-                    "type": "card"
-                }
-                
-                fortune_db[idm_id] = card_record
-                
                 return {
                     "status": "success",
                     "message": "Card image sent to printer" if print_success else "Card image generated but print failed",
@@ -364,18 +352,6 @@ async def receive_idm(request: Request):
                     "type": "card"
                 }
         
-        if idm_id in fortune_db:
-            existing_fortune = fortune_db[idm_id]
-            print(f"既存の占い結果を使用: {idm_id}")
-            
-            return {
-                "status": "success",
-                "message": "Fortune already exists for this IDM",
-                "idm_id": idm_id,
-                "fortune": existing_fortune["fortune_text"],
-                "image_path": existing_fortune["image_path"],
-                "created_at": existing_fortune["created_at"]
-            }
         
         fortune_text = generate_fortune(idm_text)
         print(f"生成された占い: {fortune_text}")
@@ -384,17 +360,6 @@ async def receive_idm(request: Request):
         print(f"画像作成完了: {image_path}")
         
         print_success = send_to_printer(image_path)
-        
-        fortune_record = {
-            "idm_data": idm_text,
-            "fortune_text": fortune_text,
-            "image_path": image_path,
-            "print_success": print_success,
-            "created_at": timestamp,
-            "updated_at": timestamp
-        }
-        
-        fortune_db[idm_id] = fortune_record
         
         return {
             "status": "success",

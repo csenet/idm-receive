@@ -34,7 +34,9 @@ PRINTER_API_HOST = os.getenv("PRINTER_API_HOST", "http://printer-api:8080")
 UPLOAD_DIR = Path("fortune_images")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-idm_mapping = json.load(open("idm.json"))
+idm_mapping = {
+    "0140F4FD8927B660": "mcberingi.png"
+}
 
 if not OPENROUTER_API_KEY:
     print("警告: OPENROUTER_API_KEYが設定されていません")

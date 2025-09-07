@@ -153,7 +153,7 @@ def generate_fortune(idm_data: str) -> str:
                 "X-Title": "IDM Fortune Service",
             },
             # model="openai/gpt-4o-mini",
-            model="openai/gpt-5",
+            model="meta-llama/llama-3.2-1b-instruct",
             messages=[
                 {
                     "role": "system",
@@ -267,6 +267,9 @@ def create_fortune_image(fortune_text: str, idm_data: str) -> str:
     # 絵文字を除去して日本語テキストのみにする
     import re
     clean_text = re.sub(r'[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3000-\u303Fa-zA-Z0-9。！？、・（）\s]', '', fortune_text)
+    
+    # 既存の改行文字を処理して、単一の文字列にする
+    clean_text = clean_text.replace('\n', ' ')
     
     # 日本語テキストを適切に改行
     lines = []

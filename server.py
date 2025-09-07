@@ -7,6 +7,7 @@ from typing import Dict, Any
 from pathlib import Path
 import io
 import hashlib
+import json
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +33,8 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 PRINTER_API_HOST = os.getenv("PRINTER_API_HOST", "http://printer-api:8080")
 UPLOAD_DIR = Path("fortune_images")
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+idm_mapping = json.load(open("idm.json"))
 
 if not OPENROUTER_API_KEY:
     print("警告: OPENROUTER_API_KEYが設定されていません")
@@ -133,6 +136,36 @@ def generate_fortune(idm_data: str) -> str:
         if exhibitor_info:
             result += f" {exhibitor_info}"
         return result
+
+def create_card_image(image_filename: str, idm_data: str) -> str:
+    """指定されたカード画像を使用して印刷用画像を作成"""
+    try:
+        card_path = Path("cards") / image_filename
+        if not card_path.exists():
+            print(f"Card image not found: {card_path}")
+            return None
+        
+        # カード画像を読み込み
+        card_img = Image.open(card_path)
+        
+        # プリンター用サイズに調整
+        width = 384
+        # 高さはアスペクト比を維持して計算
+        height = int(card_img.height * (width / card_img.width))
+        
+        # 画像をリサイズ
+        card_img = card_img.resize((width, height), Image.Resampling.LANCZOS)
+        
+        filename = f"card_{uuid.uuid4().hex[:8]}.png"
+        file_path = UPLOAD_DIR / filename
+        card_img.save(file_path, "PNG")
+        
+        print(f"Card image created: {file_path}")
+        return str(file_path)
+        
+    except Exception as e:
+        print(f"Error creating card image: {e}")
+        return None
 
 def create_fortune_image(fortune_text: str, idm_data: str) -> str:
     print("=== Starting font loading ===")
@@ -297,6 +330,39 @@ async def receive_idm(request: Request):
         idm_id = idm_text
         
         print(f"[{timestamp}] IDM受信: {idm_text}")
+        
+        # idm_mappingをチェックしてカード画像が指定されているか確認
+        if idm_id in idm_mapping:
+            card_filename = idm_mapping[idm_id]
+            print(f"カード画像が指定されています: {card_filename}")
+            
+            # カード画像を作成
+            card_image_path = create_card_image(card_filename, idm_id)
+            if card_image_path:
+                print_success = send_to_printer(card_image_path)
+                
+                card_record = {
+                    "idm_data": idm_text,
+                    "card_filename": card_filename,
+                    "image_path": card_image_path,
+                    "print_success": print_success,
+                    "created_at": timestamp,
+                    "updated_at": timestamp,
+                    "type": "card"
+                }
+                
+                fortune_db[idm_id] = card_record
+                
+                return {
+                    "status": "success",
+                    "message": "Card image sent to printer" if print_success else "Card image generated but print failed",
+                    "idm_id": idm_id,
+                    "card_filename": card_filename,
+                    "image_path": card_image_path,
+                    "print_success": print_success,
+                    "timestamp": timestamp,
+                    "type": "card"
+                }
         
         if idm_id in fortune_db:
             existing_fortune = fortune_db[idm_id]

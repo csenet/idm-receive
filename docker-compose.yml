@@ -10,6 +10,8 @@ services:
       - ./fortune_images:/app/fortune_images
       - ./server.py:/app/server.py
       - ./img:/app/img
+      - ./cards:/app/cards
+      - ./idm.json:/app/idm.json
     # depends_on:
     #   - printer-api
     restart: unless-stopped

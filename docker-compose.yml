@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   idm-fortune-service:
     build: .

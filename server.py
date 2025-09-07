@@ -269,10 +269,9 @@ def send_to_printer(image_path: str) -> bool:
     try:
         with open(image_path, "rb") as f:
             files = {"imgf": (os.path.basename(image_path), f, "image/png")}
-            endpoint = random.choice([0, 1])
-            
-            print(f"Sending to printer: {PRINTER_API_HOST}/{endpoint}")
-            response = requests.post(f"{PRINTER_API_HOST}/{endpoint}", files=files, timeout=30)
+
+            print(f"Sending to printer: {PRINTER_API_HOST}")
+            response = requests.post(f"{PRINTER_API_HOST}", files=files, timeout=30)
             
             if response.status_code == 200:
                 print("Print job completed successfully")

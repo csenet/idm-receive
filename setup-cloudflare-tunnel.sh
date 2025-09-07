@@ -20,7 +20,7 @@ echo "4. DNS レコードを追加 (自動で作成される場合もありま�
 echo "cloudflared tunnel route dns <tunnel-id> idm.ueckoken.club"
 echo ""
 echo "5. Docker Compose で起動:"
-echo "docker-compose up -d"
+echo "docker compose up -d"
 echo ""
 echo "📱 これでスマホからも https://your-domain.com でアクセス可能！"
 echo ""

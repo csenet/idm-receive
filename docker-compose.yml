@@ -2,7 +2,7 @@ services:
   idm-fortune-service:
     build: .
     ports:
-      - "8000:8000"
+      - "8888:8888"
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - PRINTER_API_HOST=${PRINTER_API_HOST}
@@ -14,11 +14,11 @@ services:
       - printer-api
     restart: unless-stopped
 
-  printer-api:
-    build: ./mock_printer
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
+  # printer-api:
+  #   build: ./mock_printer
+  #   ports:
+  #     - "8080:8080"
+  #   restart: unless-stopped
 
   cloudflared:
     image: cloudflare/cloudflared:latest

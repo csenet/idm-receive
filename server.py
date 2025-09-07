@@ -152,8 +152,8 @@ def generate_fortune(idm_data: str) -> str:
                 "HTTP-Referer": "http://localhost:8000",
                 "X-Title": "IDM Fortune Service",
             },
-            # model="openai/gpt-4o-mini",
-            model="meta-llama/llama-3.2-1b-instruct",
+            model="openai/gpt-4o-mini",
+            # model="meta-llama/llama-3.2-1b-instruct",
             messages=[
                 {
                     "role": "system",

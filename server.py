@@ -175,7 +175,7 @@ def create_fortune_image(fortune_text: str, idm_data: str) -> str:
     
     # 日本語テキストを適切に改行
     lines = []
-    max_width = 28  # 1行あたりの文字数をさらに増やす
+    max_width = 25  # 1行あたりの文字数をさらに増やす
     current_line = ""
     
     for char in clean_text:

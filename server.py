@@ -104,8 +104,45 @@ def generate_fortune(idm_data: str) -> str:
     exhibitor_info = get_random_exhibitor()
     print(f"Exhibitor info: {exhibitor_info}")
     
+    # 多様な占いパターンをランダムに選択
+    fortune_patterns = [
+        {
+            "style": "ラッキーアイテム",
+            "prompt": "あなたは電子工作の達人占い師です。今日の運勢を「今日のラッキーアイテムは○○！」から始めて、その部品や工具を使った具体的なアドバイスを含めて40文字以内で占ってください。"
+        },
+        {
+            "style": "技術予言",
+            "prompt": "あなたは未来の技術を予言する占い師です。今日の運勢を「今日は○○技術が開運の鍵！」から始めて、その技術を使った創作のヒントを含めて40文字以内で占ってください。"
+        },
+        {
+            "style": "回路占い",
+            "prompt": "あなたは回路設計の専門占い師です。今日の運勢を「今日の運命回路は○○回路！」から始めて、その回路を使ったプロジェクトのアドバイスを含めて40文字以内で占ってください。"
+        },
+        {
+            "style": "ハードウェア占い",
+            "prompt": "あなたはハードウェアの魔術師です。今日の運勢を「今日の運命デバイスは○○！」から始めて、そのデバイスを使った新しい発見のヒントを含めて40文字以内で占ってください。"
+        },
+        {
+            "style": "プロトタイプ占い",
+            "prompt": "あなたはプロトタイピングの予言者です。今日の運勢を「今日のプロトタイプ運は○○！」から始めて、その要素を使った創作のコツを含めて40文字以内で占ってください。"
+        }
+    ]
+    
+    # ランダムにパターンを選択
+    selected_pattern = random.choice(fortune_patterns)
+    print(f"Selected fortune pattern: {selected_pattern['style']}")
+    
+    # IDMデータから占いの要素を抽出（最後の4文字を数値として使用）
     try:
-        system_content = "あなたは電子工作やものづくりが好きな占い師です。NT東京での今日の運勢を日本語で楽しく占ってください。必ず「今日のラッキーアイテムは○○！」から始めて、その部品や工具などを使った簡単なアドバイスを含めて、40文字以内で明るく前向きな内容にしてください。"
+        idm_suffix = idm_data[-4:] if len(idm_data) >= 4 else idm_data
+        idm_number = int(idm_suffix, 16) % 100  # 16進数を10進数に変換して100で割った余り
+        print(f"IDM-based number: {idm_number}")
+    except:
+        idm_number = random.randint(1, 99)
+    
+    try:
+        system_content = selected_pattern["prompt"]
+        system_content += f" IDMデータの数値{idm_number}を参考に、より個性的で具体的な占いをしてください。"
         
         if exhibitor_info:
             system_content += f" 最後に「{exhibitor_info}」を追加してください。"
@@ -115,7 +152,8 @@ def generate_fortune(idm_data: str) -> str:
                 "HTTP-Referer": "http://localhost:8000",
                 "X-Title": "IDM Fortune Service",
             },
-            model="openai/gpt-4o-mini",
+            # model="openai/gpt-4o-mini",
+            model="openai/gpt-5",
             messages=[
                 {
                     "role": "system",
@@ -123,7 +161,7 @@ def generate_fortune(idm_data: str) -> str:
                 },
                 {
                     "role": "user",
-                    "content": f"IDMデータ: {idm_data}\n\n今日の運勢を占ってください。"
+                    "content": f"IDMデータ: {idm_data} (数値: {idm_number})\n\n今日の運勢を占ってください。電子工作やものづくりに関連した具体的で楽しい内容にしてください。"
                 }
             ]
         )
@@ -132,9 +170,31 @@ def generate_fortune(idm_data: str) -> str:
         
     except Exception as e:
         print(f"Fortune generation error: {str(e)}")
-        lucky_components = ['LED', 'Arduino', 'Raspberry Pi', 'コンデンサ', 'トランジスタ', 'ブレッドボード', 'IC', '抵抗']
-        lucky_component = random.choice(lucky_components)
-        result = f"今日のラッキー電子部品は{lucky_component}です！新しいハックのアイデアが浮かびそう。回路作りに良い日になりそうです。"
+        
+        # フォールバック用の多様な占いパターン
+        fallback_patterns = [
+            {
+                "items": ['LED', 'Arduino', 'Raspberry Pi', 'コンデンサ', 'トランジスタ', 'ブレッドボード', 'IC', '抵抗'],
+                "template": "今日のラッキー電子部品は{}です！新しいハックのアイデアが浮かびそう。"
+            },
+            {
+                "items": ['センサー', 'モーター', 'ディスプレイ', 'スピーカー', 'カメラ', 'GPS', 'WiFi', 'Bluetooth'],
+                "template": "今日の運命デバイスは{}です！革新的なプロジェクトのヒントが見つかりそう。"
+            },
+            {
+                "items": ['オペアンプ', 'マイコン', 'FPGA', 'DSP', 'ADC', 'DAC', 'PWM', 'UART'],
+                "template": "今日の技術予言は{}回路！高度な電子工作に挑戦する良い日になりそうです。"
+            },
+            {
+                "items": ['3Dプリンター', 'レーザーカッター', 'CNC', 'はんだごて', 'オシロスコープ', 'マルチメーター', '電源', 'プローブ'],
+                "template": "今日のプロトタイプ運は{}！ものづくりの新境地が開けそうです。"
+            }
+        ]
+        
+        selected_fallback = random.choice(fallback_patterns)
+        selected_item = random.choice(selected_fallback["items"])
+        result = selected_fallback["template"].format(selected_item)
+        
         if exhibitor_info:
             result += f" {exhibitor_info}"
         return result
